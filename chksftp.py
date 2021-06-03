@@ -1,9 +1,12 @@
-import os, time, logging, pysftp
-from prometheus_client import start_http_server, generate_latest, Gauge
-from flask import Flask, send_file, request, Response
+import os
+import time
+import logging
+import pysftp
+from prometheus_client import generate_latest, Gauge
+from flask import Flask, Response
 
-logger  = logging.getLogger(__name__)
-app     = Flask(__name__)
+logger = logging.getLogger(__name__)
+app = Flask(__name__)
 CONTENT_TYPE_LATEST = str('text/plain; version=0.0.4; charset=utf-8')
 
 myHostname = os.environ['SFTPHOST']
@@ -15,10 +18,11 @@ else:
     randomFile = "testfile.bin"
 
 # Create a metric to track time spent and requests made.
-AUTH_SUCCESS = Gauge('sftp_auth_success', 'Whether authentication succceeded',['sftp_host'])
-TIME_TO_AUTH = Gauge('sftp_auth_seconds', 'Amount of time to authenticate',['sftp_host'])
-TRANSFER_SUCCESS = Gauge('sftp_transfer_success', 'Whether transfer succceeded',['sftp_host'])
-TIME_TO_TRANSFER = Gauge('sftp_transfer_seconds', 'Amount of time to transfer 5M file',['sftp_host'])
+AUTH_SUCCESS = Gauge('sftp_auth_success', 'Whether authentication succceeded', ['sftp_host'])
+TIME_TO_AUTH = Gauge('sftp_auth_seconds', 'Amount of time to authenticate', ['sftp_host'])
+TRANSFER_SUCCESS = Gauge('sftp_transfer_success', 'Whether transfer succceeded', ['sftp_host'])
+TIME_TO_TRANSFER = Gauge('sftp_transfer_seconds', 'Amount of time to transfer 5M file', ['sftp_host'])
+
 
 # Decorate function with metric.
 def process_request():
@@ -30,12 +34,13 @@ def process_request():
         beginSFTP = time.time()
         # Hacky workaround to get it working in containers
         cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None 
+        cnopts.hostkeys = None
+
         with pysftp.Connection(host=myHostname, username=myUsername, password=myPassword, cnopts=cnopts, log=True) as sftp:
             endConnection = time.time()
             auth_success_value = 1
             auth_duration = endConnection-beginSFTP
-            
+
             # Create a Random 5 MB file
             with open(randomFile, 'wb') as fout:
                 fout.write(os.urandom(5242880))
@@ -52,8 +57,8 @@ def process_request():
             endPutFile = time.time()
             file_duration_value = endPutFile-startPutFile
 
-    except:
-        pass
+    except Exception:
+        logger.error('SFTP Connection failed')
 
     AUTH_SUCCESS.labels(myHostname).set(auth_success_value)
     TRANSFER_SUCCESS.labels(myHostname).set(file_success)
@@ -61,12 +66,14 @@ def process_request():
     TIME_TO_TRANSFER.labels(myHostname).set(file_duration_value)
 # END process_request()
 
+
 # Mini server to replicate prometheus norms
 @app.route('/metrics', methods=['GET'])
 def get_data():
     """Returns all data as plaintext."""
     process_request()
     return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+
 
 @app.route('/', methods=['GET'])
 def show_home():
@@ -78,6 +85,7 @@ def show_home():
             </body>
             </html>"""
     return Response(output)
- 
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=9816)
