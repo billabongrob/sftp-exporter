@@ -19,3 +19,5 @@ docker run -p 9816:9816 ghcr.io/billabongrob/sftp-exporter:latest --env SFTPHOST
 ```
 
 Grafana dashboard available [here](https://grafana.com/grafana/dashboards/15744)
+
+![Example dashboard](https://raw.githubusercontent.com/billabongrob/sftp-exporter/main/example/grafana-dashboard.png)
