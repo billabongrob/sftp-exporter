@@ -17,3 +17,5 @@ A Dockerfile is provided for convenience if you prefer to build and analyze. You
 ```
 docker run -p 9816:9816 ghcr.io/billabongrob/sftp-exporter:latest --env SFTPHOST=sftp.hostname.com --env SFTPUSER=mysecureuser --env SFTPPASS=mysecurepassword
 ```
+
+Grafana dashboard available [here](https://grafana.com/grafana/dashboards/15744)
