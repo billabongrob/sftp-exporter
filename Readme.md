@@ -12,8 +12,8 @@ The code included is a small Python web server based on Flask and presents data 
 
 ## Docker
 
-A Dockerfile is provided for convenience. It will build the source and then run the exporter. You can use the Docker command line like so:
+A Dockerfile is provided for convenience if you prefer to build and analyze. You are also welcome to use the command below to pull from this GitHub registry:
 
 ```
-docker run -p 9816:9816 YourContainer/name:latest --env SFTPHOST=sftp.hostname.com --env SFTPUSER=mysecureuser --env SFTPPASS=mysecurepassword
+docker run -p 9816:9816 ghcr.io/billabongrob/sftp-exporter:latest --env SFTPHOST=sftp.hostname.com --env SFTPUSER=mysecureuser --env SFTPPASS=mysecurepassword
 ```
