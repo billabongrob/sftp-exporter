@@ -5,11 +5,12 @@ RUN pip install --user -r requirements.txt
 
 FROM python:3.9-slim
 WORKDIR /app
-
-COPY --from=builder /root/.local/* /root/.local/
+COPY --from=builder /root/.local/* /app/.local/
 COPY chksftp.py .
 
-ENV PATH=/root/.local:$PATH
-ENV PYTHONPATH=/root/.local/python3.9/site-packages
+ENV PATH=/app/.local:$PATH
+ENV PYTHONPATH=/app/.local/python3.9/site-packages
+RUN adduser sftpuser && chown -R sftpuser /app
+USER sftpuser
 EXPOSE 9816
-CMD [ "python", "./chksftp.py"]
+CMD [ "python", "chksftp.py"]

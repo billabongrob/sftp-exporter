@@ -7,6 +7,8 @@ The code included is a small Python web server based on Flask and presents data 
 * **SFTPUSER** eg. mysecureuser *Required*
 * **SFTPPASS** eg. mysecurepassword *Required*
 * **FILENAME** eg. azure-south-central.bin *Optional*
+* **WEBPORT** eg. 1985 - defaults to 9816 *Optional*
+
 
 ## Docker
 

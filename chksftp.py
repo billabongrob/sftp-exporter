@@ -9,13 +9,15 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CONTENT_TYPE_LATEST = str('text/plain; version=0.0.4; charset=utf-8')
 
+listenPort = int(os.getenv('WEBPORT', '9816'))
+logger.info(listenPort)
 myHostname = os.environ['SFTPHOST']
 myUsername = os.environ['SFTPUSER']
 myPassword = os.environ['SFTPPASS']
-if 'FILENAME' in os.environ:
-    randomFile = os.environ['FILENAME']
-else:
-    randomFile = "testfile.bin"
+randomFile = os.getenv('FILENAME', 'testfile.bin')
+
+print(os.environ)
+
 
 # Create a metric to track time spent and requests made.
 AUTH_SUCCESS = Gauge('sftp_auth_success', 'Whether authentication succceeded', ['sftp_host'])
@@ -31,10 +33,10 @@ def process_request():
     file_success = 0
     file_duration_value = 0
     try:
-        beginSFTP = time.time()
         # Hacky workaround to get it working in containers
         cnopts = pysftp.CnOpts()
         cnopts.hostkeys = None
+        beginSFTP = time.time()
 
         with pysftp.Connection(host=myHostname, username=myUsername, password=myPassword, cnopts=cnopts, log=True) as sftp:
             endConnection = time.time()
@@ -88,4 +90,4 @@ def show_home():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=9816)
+    app.run(debug=True, host='0.0.0.0', port=listenPort)
